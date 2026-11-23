@@ -2,7 +2,7 @@
 
 Projeto final da disciplina do curso de **Análise e Desenvolvimento de Sistemas** na UDF.
 
-🔗 **Acesse:** https://henriqueviana7.github.io/portfolio/
+🔗 **Acesse:** https://henriqueviana7.github.io/
 
 ## 🔌 Sobre o projeto
 
