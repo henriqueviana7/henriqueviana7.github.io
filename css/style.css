@@ -1,0 +1,1141 @@
+/* =========================================================
+   PORTFÓLIO - Henrique Silva Viana
+   Tema: rack de rede e patch panel
+   ========================================================= */
+
+/* ---------- Variáveis ---------- */
+:root {
+  /* Metais e painéis do rack */
+  --fundo: #15181c;          /* interior do rack */
+  --painel: #1c2026;         /* painel grafite */
+  --painel-2: #22272e;       /* painel mais claro */
+  --trilho: #2b3139;         /* trilhos laterais do rack */
+  --borda: #333a43;          /* bordas metálicas */
+  --borda-forte: #4a525c;
+
+  /* Texto */
+  --texto: #e8ecef;
+  --texto-2: #9aa4ae;
+  --texto-3: #6b747e;
+
+  /* LEDs */
+  --led-verde: #3ddc84;
+  --led-ambar: #f5a524;
+
+  /* Cores dos pares do cabo (padrão T568B) */
+  --cabo-laranja: #f08a24;
+  --cabo-verde: #2fa84f;
+  --cabo-azul: #3b7ddd;
+  --cabo-marrom: #a8703f;
+
+  /* Cor da página atual (muda em cada página, veja abaixo) */
+  --cabo: var(--cabo-laranja);
+
+  /* Cantos arredondados */
+  --raio: 10px;
+
+  /* Fontes */
+  --fonte-titulo: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --fonte-texto: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --fonte-codigo: "IBM Plex Mono", Consolas, monospace;
+}
+
+/* Cada página usa a cor de um par do cabo */
+.porta-1 { --cabo: var(--cabo-laranja); }
+.porta-2 { --cabo: var(--cabo-verde); }
+.porta-3 { --cabo: var(--cabo-azul); }
+.porta-4 { --cabo: var(--cabo-marrom); }
+
+/* ---------- Reset básico ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--fonte-texto);
+  font-size: 17px;
+  line-height: 1.65;
+  background-color: var(--fundo);
+  color: var(--texto);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--cabo);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Foco visível para quem navega pelo teclado */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--cabo);
+  outline-offset: 3px;
+}
+
+h1, h2, h3 {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.container {
+  width: 88%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   LAYOUT: BARRA LATERAL (PATCH PANEL) + CONTEÚDO
+   ========================================================= */
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+}
+
+/* A barra lateral é um patch panel preso em trilhos de rack */
+.sidebar {
+  position: sticky;   /* fica parada enquanto o conteúdo rola */
+  top: 0;
+  height: 100vh;
+  background-color: var(--painel);
+  border-left: 14px solid var(--trilho);
+  border-right: 14px solid var(--trilho);
+  padding: 30px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  z-index: 100;
+}
+
+/* Furos dos parafusos nos trilhos */
+.sidebar::before,
+.sidebar::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  width: 14px;
+  height: 100vh;
+  background-image: radial-gradient(circle, #111417 3px, transparent 3.5px);
+  background-size: 14px 44px;
+  background-position: center 10px;
+}
+
+.sidebar::before { left: 0; }
+.sidebar::after { left: 286px; }
+
+.logo {
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--texto);
+  letter-spacing: 0.5px;
+}
+
+.logo span {
+  color: var(--cabo);
+}
+
+.logo:hover {
+  text-decoration: none;
+}
+
+.sidebar-perfil {
+  text-align: left;
+}
+
+.sidebar-foto {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 3px solid var(--borda-forte);
+  object-fit: cover;
+  margin-bottom: 14px;
+}
+
+.sidebar-nome {
+  font-size: 1.7rem;
+}
+
+.sidebar-cargo {
+  color: var(--texto-2);
+  font-size: 0.9rem;
+  margin: 4px 0 12px;
+}
+
+.sidebar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fonte-codigo);
+  font-size: 0.75rem;
+  color: var(--texto-2);
+}
+
+/* LED verde de "ligado" */
+.ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--led-verde);
+  box-shadow: 0 0 6px var(--led-verde);
+}
+
+/* ---------- Menu: portas do patch panel ---------- */
+.menu ul {
+  border-radius: var(--raio);
+  list-style: none;
+  background-color: #15181c;
+  border: 1px solid var(--borda);
+  padding: 8px;
+}
+
+.menu a {
+  display: grid;
+  grid-template-columns: 18px 1fr 10px 34px;   /* número, nome, LED, porta */
+  align-items: center;
+  gap: 10px;
+  padding: 9px 8px;
+  color: var(--texto-2);
+  font-family: var(--fonte-titulo);
+  font-size: 1.25rem;
+  font-weight: 500;
+  position: relative;
+}
+
+.menu a:hover {
+  color: var(--texto);
+  text-decoration: none;
+  background-color: var(--painel-2);
+}
+
+/* Ordem visual: número, nome, LED e porta (o cabo sai pela direita) */
+.porta-num { order: -1; }
+.porta-led { order: 2; }
+.porta-rj  { order: 3; }
+
+/* LED de cada porta (apagado) */
+.porta-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #3a3f45;
+}
+
+/* Desenho da porta RJ45 */
+.porta-rj {
+  width: 34px;
+  height: 26px;
+  background-color: #0b0d10;
+  border: 2px solid var(--borda-forte);
+  border-radius: 2px;
+  position: relative;
+}
+
+/* Encaixe da trava do conector */
+.porta-rj::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  bottom: -2px;
+  width: 10px;
+  height: 6px;
+  background-color: #15181c;
+}
+
+.porta-num {
+  font-family: var(--fonte-codigo);
+  font-size: 0.8rem;
+  color: var(--texto-3);
+}
+
+/* Porta da página atual: LED aceso e cabo conectado */
+.menu a.ativo {
+  color: var(--texto);
+}
+
+.menu a.ativo .porta-led {
+  background-color: var(--led-verde);
+  box-shadow: 0 0 6px var(--led-verde);
+}
+
+.menu a.ativo .porta-rj {
+  background-color: var(--cabo);
+  border-color: var(--cabo);
+}
+
+/* O cabo sai da porta ativa e vai até o conteúdo */
+.menu a.ativo::after {
+  content: "";
+  position: absolute;
+  left: calc(100% - 8px);   /* começa na borda direita da porta */
+  right: -45px;             /* atravessa o painel até o conteúdo */
+  top: 50%;
+  height: 6px;
+  margin-top: -3px;
+  background-color: var(--cabo);
+}
+
+.sidebar-contatos {
+  margin-top: auto;   /* empurra os contatos para o fim da barra */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--fonte-codigo);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--borda);
+  padding-top: 16px;
+}
+
+.sidebar-contatos a {
+  color: var(--texto-2);
+}
+
+.sidebar-contatos a:hover {
+  color: var(--texto);
+}
+
+/* Botão hambúrguer (só aparece no celular) */
+.btn-menu {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.btn-menu span {
+  display: block;
+  width: 26px;
+  height: 3px;
+  margin: 5px 0;
+  background-color: var(--texto);
+  transition: 0.3s;
+}
+
+.btn-menu.aberto span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.btn-menu.aberto span:nth-child(2) { opacity: 0; }
+.btn-menu.aberto span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+/* ---------- Conteúdo ---------- */
+.conteudo {
+  min-width: 0;   /* evita que o conteúdo estoure a coluna */
+  border-left: 6px solid var(--cabo);   /* o cabo da porta ativa chega aqui */
+}
+
+section {
+  padding: 90px 0;
+  border-bottom: 1px solid var(--borda);
+}
+
+.secao-alt {
+  background-color: #181b20;
+}
+
+/* Títulos de seção */
+.titulo-secao {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+}
+
+.subtitulo-secao {
+  color: var(--texto-2);
+  max-width: 62ch;
+  margin-bottom: 45px;
+}
+
+.titulo-menor {
+  font-size: 1.5rem;
+  margin: 45px 0 15px;
+}
+
+/* ---------- Botões ---------- */
+.btn {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 12px 26px;
+  font-family: var(--fonte-titulo);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: 2px solid var(--cabo);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn-primario {
+  background-color: var(--cabo);
+  color: #15181c;
+}
+
+.btn-primario:hover {
+  background-color: transparent;
+  color: var(--cabo);
+}
+
+.btn-secundario {
+  color: var(--texto);
+  border-color: var(--borda-forte);
+}
+
+.btn-secundario:hover {
+  border-color: var(--cabo);
+  color: var(--cabo);
+}
+
+/* =========================================================
+   PÁGINA INICIAL
+   ========================================================= */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero .container {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.hero h1 {
+  font-size: clamp(3.5rem, 7vw, 6rem);
+  font-weight: 700;
+  line-height: 0.95;
+  margin-bottom: 18px;
+}
+
+.hero h2 {
+  font-family: var(--fonte-texto);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--cabo);
+  margin-bottom: 20px;
+}
+
+.hero p {
+  color: var(--texto-2);
+  max-width: 52ch;
+  margin-bottom: 32px;
+}
+
+.hero-botoes {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Etiqueta de patrimônio prateada */
+.etiqueta {
+  background-color: #d5d9dd;
+  color: #1c2026;
+  padding: 18px 20px 16px;
+  border-radius: 4px;
+  font-family: var(--fonte-codigo);
+  font-size: 0.85rem;
+  transform: rotate(-1.5deg);
+  box-shadow: 0 2px 0 #9aa1a8;
+}
+
+.etiqueta-topo {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--fonte-titulo);
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-bottom: 2px solid #1c2026;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.etiqueta-dados {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 3px 10px;
+}
+
+.etiqueta-dados dt {
+  color: #5a636c;
+}
+
+.etiqueta-dados dd {
+  font-weight: 500;
+}
+
+/* Código de barras feito só com CSS */
+.codigo-barras {
+  height: 38px;
+  margin-top: 14px;
+  background-image: repeating-linear-gradient(90deg,
+    #1c2026 0 2px, transparent 2px 4px,
+    #1c2026 4px 5px, transparent 5px 8px,
+    #1c2026 8px 11px, transparent 11px 12px);
+}
+
+/* =========================================================
+   COMPONENTES
+   ========================================================= */
+
+/* ---------- Badges (etiquetas de cabo) ---------- */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  border-radius: 4px;
+  font-family: var(--fonte-codigo);
+  font-size: 0.78rem;
+  font-weight: 500;
+  overflow: hidden;
+}
+
+.badge .rotulo {
+  background-color: #2b3139;
+  color: var(--texto-2);
+  padding: 4px 9px;
+}
+
+.badge .valor {
+  padding: 4px 9px;
+  color: #fff;
+}
+
+/* Cores de cada tecnologia */
+.html   { background-color: #e34f26; }
+.css    { background-color: #1572b6; }
+.js     { background-color: #a88a00; }
+.python { background-color: #3776ab; }
+.sql    { background-color: #4479a1; }
+.git    { background-color: #f05032; }
+.windows{ background-color: #0078d6; }
+.figma  { background-color: #8b4fe0; }
+.ad     { background-color: #0063b1; }
+.azure  { background-color: #0078c8; }
+.gworkspace { background-color: #2f8f4a; }
+.cortex { background-color: #e0521f; }
+.cisco  { background-color: #157fae; }
+.powershell { background-color: #2c5591; }
+.redes  { background-color: #0f7d74; }
+
+/* ---------- Blocos de atividades ---------- */
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.card {
+  background-color: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 28px;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+/* Ao passar o cursor, o bloco sobe e a borda ganha a cor da página */
+.card:hover {
+  transform: translateY(-5px);
+  border-color: var(--cabo);
+}
+
+.card-icone {
+  font-size: 2rem;
+  margin-bottom: 14px;
+}
+
+.card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: var(--texto-2);
+  font-size: 0.95rem;
+}
+
+/* ---------- Bloco README / ficha técnica ---------- */
+.readme {
+  border-radius: var(--raio);
+  background-color: var(--painel);
+  border: 1px solid var(--borda);
+  padding: 30px 32px;
+}
+
+.readme-arquivo {
+  font-family: var(--fonte-codigo);
+  color: var(--texto-3);
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.readme h3 {
+  font-size: 1.45rem;
+  margin: 30px 0 12px;
+}
+
+.readme h3:first-of-type {
+  margin-top: 0;
+}
+
+.info-lista {
+  list-style: none;
+  margin-top: 20px;
+}
+
+.info-lista li {
+  padding: 5px 0;
+}
+
+.info-lista li strong {
+  color: var(--texto-2);
+  font-weight: 500;
+}
+
+/* Objetivos com LED: verde = concluído, âmbar = pendente */
+.led-ok,
+.led-pendente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.led-ok::before,
+.led-pendente::before {
+  content: "";
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.led-ok::before {
+  background-color: var(--led-verde);
+  box-shadow: 0 0 6px var(--led-verde);
+}
+
+.led-pendente::before {
+  background-color: var(--led-ambar);
+}
+
+/* ---------- Página Sobre ---------- */
+.sobre-texto {
+  max-width: 68ch;
+}
+
+.sobre-texto p {
+  color: var(--texto-2);
+  margin-bottom: 16px;
+}
+
+.sobre-texto strong {
+  color: var(--texto);
+  font-weight: 500;
+}
+
+.foto-perfil {
+  width: 160px;
+  border-radius: 50%;
+  border: 3px solid var(--borda-forte);
+}
+
+.foto-celular {
+  display: none;
+}
+
+/* Linha do tempo */
+.timeline {
+  border-left: 2px solid var(--borda-forte);
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -37px;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--led-verde);
+  box-shadow: 0 0 6px var(--led-verde);
+}
+
+.timeline-data {
+  font-family: var(--fonte-codigo);
+  color: var(--texto-3);
+  font-size: 0.85rem;
+}
+
+.timeline-item h3 {
+  font-size: 1.6rem;
+  margin: 4px 0 6px;
+}
+
+.timeline-item p {
+  color: var(--texto-2);
+  max-width: 65ch;
+}
+
+/* Eventos */
+.evento {
+  border-radius: var(--raio);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  background-color: var(--painel);
+  border: 1px solid var(--borda);
+  padding: 30px;
+}
+
+.evento-texto h3 {
+  font-size: 2rem;
+  margin: 6px 0 14px;
+}
+
+.evento-texto p {
+  color: var(--texto-2);
+  margin-bottom: 14px;
+}
+
+.evento-fotos {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.evento-fotos img {
+  width: 100%;
+  border-radius: 6px;
+  cursor: zoom-in;
+  border: 1px solid var(--borda);
+}
+
+/* ---------- Página Experiência ---------- */
+.cargo {
+  border-radius: var(--raio);
+  background-color: var(--painel);
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--cabo);
+  padding: 30px 32px;
+}
+
+.cargo-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.cargo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fonte-codigo);
+  font-size: 0.8rem;
+  color: var(--texto-2);
+}
+
+.cargo h3 {
+  font-size: 2.2rem;
+  margin: 6px 0 2px;
+}
+
+.cargo-empresa {
+  color: var(--cabo);
+  font-weight: 500;
+}
+
+.cargo-periodo {
+  border-radius: 6px;
+  font-family: var(--fonte-codigo);
+  font-size: 0.85rem;
+  color: var(--texto-2);
+  border: 1px solid var(--borda-forte);
+  padding: 5px 12px;
+}
+
+.cargo > p {
+  color: var(--texto-2);
+  max-width: 70ch;
+}
+
+/* Projetos */
+.grid-projetos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.projeto {
+  border-radius: var(--raio);
+  overflow: hidden;   /* a imagem acompanha os cantos arredondados */
+  background-color: var(--painel);
+  border: 1px solid var(--borda);
+}
+
+.projeto img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  cursor: zoom-in;
+  border-bottom: 1px solid var(--borda);
+}
+
+.projeto-info {
+  padding: 22px 24px 24px;
+}
+
+.projeto-info h3 {
+  font-size: 1.7rem;
+  margin-bottom: 8px;
+}
+
+.projeto-info p {
+  color: var(--texto-2);
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.projeto-info .badges {
+  margin-bottom: 18px;
+}
+
+.projeto-links {
+  display: flex;
+  gap: 22px;
+  font-weight: 500;
+}
+
+/* ---------- Página Contato ---------- */
+.grid-contato {
+  display: grid;
+  border-radius: var(--raio);
+  overflow: hidden;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border: 1px solid var(--borda);
+  max-width: 720px;
+}
+
+.contato-card {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+  gap: 22px;
+  padding: 22px 26px;
+  background-color: var(--painel);
+  border-bottom: 1px solid var(--borda);
+  color: var(--texto);
+}
+
+.contato-card:last-child {
+  border-bottom: none;
+}
+
+.contato-card:hover {
+  text-decoration: none;
+  background-color: var(--painel-2);
+}
+
+.contato-card h3 {
+  font-size: 1.5rem;
+}
+
+/* Quadrado do ícone, no formato de uma porta */
+.contato-icone {
+  border-radius: 8px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #15181c;
+  border: 2px solid var(--borda-forte);
+  color: var(--cabo);
+  transition: border-color 0.2s;
+}
+
+.contato-icone svg {
+  width: 30px;
+  height: 30px;
+}
+
+.contato-card:hover .contato-icone {
+  border-color: var(--cabo);
+}
+
+.contato-card p {
+  font-family: var(--fonte-codigo);
+  font-size: 0.9rem;
+  color: var(--cabo);
+  word-break: break-all;
+}
+
+/* ---------- Lightbox (imagem ampliada) ---------- */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 12, 14, 0.94);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.lightbox.ativo {
+  display: flex;
+}
+
+.lightbox img {
+  max-height: 85vh;
+}
+
+.lightbox-fechar {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  font-size: 2.5rem;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------- Rodapé ---------- */
+.rodape {
+  padding: 28px 0;
+  color: var(--texto-3);
+  font-family: var(--fonte-codigo);
+  font-size: 0.8rem;
+}
+
+/* ---------- Botão voltar ao topo ---------- */
+.btn-topo {
+  position: fixed;
+  border-radius: 50%;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--cabo);
+  background-color: var(--painel);
+  color: var(--cabo);
+  font-size: 1.3rem;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+  z-index: 90;
+}
+
+.btn-topo.visivel {
+  opacity: 1;
+  visibility: visible;
+}
+
+.btn-topo:hover {
+  background-color: var(--cabo);
+  color: #15181c;
+}
+
+/* ---------- Animação ao rolar a página ---------- */
+.animar {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s, transform 0.6s;
+}
+
+.animar.mostrar {
+  opacity: 1;
+  transform: none;
+}
+
+/* Quem prefere menos movimento não vê animações */
+@media (prefers-reduced-motion: reduce) {
+  .animar {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* =========================================================
+   RESPONSIVO
+   ========================================================= */
+
+/* Tablet e celular: o patch panel vira uma barra no topo */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    height: auto;
+    padding: 0 5%;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid var(--borda);
+    gap: 0;
+    overflow: visible;
+  }
+
+  .sidebar::before,
+  .sidebar::after {
+    display: none;
+  }
+
+  .sidebar-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
+
+  .btn-menu {
+    display: block;
+  }
+
+  .sidebar-perfil,
+  .sidebar-contatos {
+    display: none;
+  }
+
+  /* Menu desce do topo quando o hambúrguer é clicado */
+  .menu {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    width: 100%;
+    background-color: var(--painel);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s;
+  }
+
+  .menu.aberto {
+    max-height: 320px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .menu ul {
+    margin: 12px 5%;
+  }
+
+  .menu a.ativo::after {
+    display: none;
+  }
+
+  /* No celular o cabo chega pelo topo */
+  .conteudo {
+    border-left: none;
+    border-top: 6px solid var(--cabo);
+  }
+
+  .hero {
+    min-height: auto;
+  }
+
+  .hero .container,
+  .evento {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-cards,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .etiqueta {
+    max-width: 420px;
+  }
+
+  .foto-celular {
+    display: block;
+    margin-bottom: 25px;
+  }
+}
+
+/* Celular */
+@media (max-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+
+  section {
+    padding: 60px 0;
+  }
+
+  .titulo-secao {
+    font-size: 2.2rem;
+  }
+
+  .grid-cards,
+  .grid-4,
+  .grid-projetos {
+    grid-template-columns: 1fr;
+  }
+
+  .contato-card {
+    grid-template-columns: 48px 1fr;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .contato-icone {
+    width: 48px;
+    height: 48px;
+  }
+
+  .contato-icone svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .readme,
+  .cargo,
+  .evento {
+    padding: 22px 20px;
+  }
+
+  .etiqueta {
+    transform: none;
+  }
+}
